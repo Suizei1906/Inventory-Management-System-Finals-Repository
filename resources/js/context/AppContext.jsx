@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { router, usePage } from "@inertiajs/react";
 
 export const AppContext = createContext(null);
@@ -39,10 +39,22 @@ export function AppProvider({ children }) {
     batches = [],
     transactions = [],
     orders = [],
-    notifications = [],
+    notifications: serverNotifications = [],
     users = [],
     warehouseLocations: WAREHOUSE_LOCATIONS = [],
   } = inventory || {};
+
+  // Keep a local copy of notifications so we can update it optimistically
+  // when the user acknowledges or ignores an alert — without resetting the
+  // filter dropdowns on the Alerts page (which would happen if preserveState
+  // were set to false on the underlying send() helper).
+  const [notifications, setNotifications] = useState(serverNotifications);
+
+  // Sync local state whenever Inertia delivers fresh props (e.g. on navigation
+  // or a full-page visit) so the list is never permanently stale.
+  useEffect(() => {
+    setNotifications(serverNotifications);
+  }, [serverNotifications]);
 
   function logout() {
     router.post("/logout");
@@ -88,8 +100,26 @@ export function AppProvider({ children }) {
   const getPendingAlertCount = () =>
     notifications.filter((n) => n.Status === "Pending").length;
 
-  const acknowledgeAlert = (id) => send("patch", `/alerts/${id}`, { Status: "Acknowledged" });
-  const ignoreAlert = (id) => send("patch", `/alerts/${id}`, { Status: "Ignored" });
+  const acknowledgeAlert = (id) => {
+    // Optimistically mark the alert as Acknowledged so the tier list and
+    // sidebar badge update immediately — no need to wait for the server.
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.NotificationID === id ? { ...n, Status: "Acknowledged" } : n
+      )
+    );
+    return send("patch", `/alerts/${id}`, { Status: "Acknowledged" });
+  };
+
+  const ignoreAlert = (id) => {
+    // Optimistically mark the alert as Ignored.
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.NotificationID === id ? { ...n, Status: "Ignored" } : n
+      )
+    );
+    return send("patch", `/alerts/${id}`, { Status: "Ignored" });
+  };
 
   const addProduct = (data) => send("post", "/products", data);
   const updateProduct = (id, data) => send("put", `/products/${id}`, data);

@@ -161,9 +161,12 @@ export function AlertsByTierChart({ notifications }) {
     "Expiry Warning",
   ];
   const counts = {};
-  notifications.forEach((n) => {
-    counts[n.NotificationType] = (counts[n.NotificationType] || 0) + 1;
-  });
+  // Only count Pending alerts so the chart updates when alerts are acknowledged/ignored.
+  notifications
+    .filter((n) => n.Status === "Pending")
+    .forEach((n) => {
+      counts[n.NotificationType] = (counts[n.NotificationType] || 0) + 1;
+    });
   const data = order.map((type) => ({ name: type, count: counts[type] || 0 }));
 
   return (
