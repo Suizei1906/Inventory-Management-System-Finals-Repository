@@ -1,0 +1,70 @@
+/* ---------------- TYPE-TO-SEARCH SELECT + DANGER BUTTON ---------------- */
+
+.btn-danger {
+  background: var(--red);
+  color: var(--white);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #7f1d1d;
+}
+
+.ss-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.ss-input {
+  padding-right: 28px !important;
+}
+
+.ss-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--gray);
+  pointer-events: none;
+}
+
+.ss-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ss-option {
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ss-option-active {
+  background: var(--brand-light);
+}
+
+.ss-option-selected {
+  font-weight: 600;
+}
+
+.ss-empty {
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gray);
+}
